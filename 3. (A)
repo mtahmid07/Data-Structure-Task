@@ -1,0 +1,77 @@
+#include <iostream>
+#include <unordered_map>
+using namespace std;
+
+struct Node
+{
+    char data;
+    Node* left;
+    Node* right;
+
+    Node(char val) {
+        data = val;
+        left = right = nullptr;
+    }
+};
+
+class BSTConstructor {
+private:
+    int preIndex;
+    unordered_map<char, int> postIndexMap;
+
+    Node* buildTreeHelper(char preorder[], char postorder[], int postStart, int postEnd) {
+        if (postStart > postEnd)
+            return nullptr;
+
+        Node* root = new Node(preorder[preIndex++]);
+
+        if (postStart == postEnd)
+            return root;
+
+        int postIndex = postIndexMap[preorder[preIndex]];
+
+        if (postIndex <= postEnd) {
+            root->left = buildTreeHelper(preorder, postorder, postStart, postIndex);
+            root->right = buildTreeHelper(preorder, postorder, postIndex + 1, postEnd - 1);
+        }
+
+        return root;
+    }
+
+    void inorderTraversal(Node* node) {
+        if (node == nullptr)
+            return;
+        inorderTraversal(node->left);
+        cout << node->data << " ";
+        inorderTraversal(node->right);
+    }
+
+public:
+    BSTConstructor() : preIndex(0) {}
+
+    Node* buildTree(char preorder[], char postorder[], int size) {
+        for (int i = 0; i < size; i++) {
+            postIndexMap[postorder[i]] = i;
+        }
+        return buildTreeHelper(preorder, postorder, 0, size - 1);
+    }
+
+    void printInOrder(Node* root) {
+        inorderTraversal(root);
+        cout << endl;
+    }
+};
+
+int main() {
+    char postorder[] = {'A', 'B', 'D', 'G', 'K', 'H', 'L', 'M', 'C', 'E'};
+    char preorder[] = {'K', 'G', 'L', 'M', 'H', 'D', 'B', 'E', 'C', 'A'};
+    int size = sizeof(postorder) / sizeof(postorder[0]);
+
+    BSTConstructor bst;
+    Node* root = bst.buildTree(preorder, postorder, size);
+
+    cout << "Inorder Traversal of the BST: ";
+    bst.printInOrder(root);
+
+    return 0;
+}
