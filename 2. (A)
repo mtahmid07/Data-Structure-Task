@@ -1,0 +1,124 @@
+#include <iostream>
+using namespace std;
+
+struct Node
+{
+    char data;
+    Node* next;
+};
+
+class Stack
+{
+private:
+    Node* top;
+
+public:
+    Stack()
+    {
+        top = nullptr;
+    }
+
+    void push(char c)
+    {
+        Node* temp = new Node();
+        temp->data = c;
+        temp->next = top;
+        top = temp;
+    }
+
+    char pop()
+    {
+        if (isEmpty())
+        {
+            cout << "Stack underflow" << endl;
+            return '\0';
+        }
+        char c = top->data;
+        Node* temp = top;
+        top = top->next;
+        delete temp;
+        return c;
+    }
+
+    char peek()
+    {
+        if (!isEmpty())
+        {
+            return top->data;
+        }
+        return '\0';
+    }
+
+    bool isEmpty()
+    {
+        return top == nullptr;
+    }
+};
+
+int precedence(char op)
+{
+    if (op == '+' || op == '-')
+        return 1;
+    if (op == '*' || op == '/')
+        return 2;
+    return 0;
+}
+
+bool isOperator(char c)
+{
+    return c == '+' || c == '-' || c == '*' || c == '/';
+}
+
+string infixToPostfix(string infix)
+{
+    Stack stack;
+    string postfix = "";
+
+    for (char c : infix)
+    {
+        if (isalnum(c))
+        {
+            postfix += c;
+        }
+        else if (c == '(')
+        {
+            stack.push(c);
+        }
+        else if (c == ')')
+        {
+            while (!stack.isEmpty() && stack.peek() != '(')
+            {
+                postfix += stack.pop();
+            }
+            stack.pop();
+        }
+        else if (isOperator(c))
+        {
+            while (!stack.isEmpty() && precedence(stack.peek()) >= precedence(c))
+            {
+                postfix += stack.pop();
+            }
+            stack.push(c);
+        }
+    }
+
+    while (!stack.isEmpty())
+    {
+        postfix += stack.pop();
+    }
+
+    return postfix;
+}
+
+int main()
+{
+    string infix;
+    cout << "Enter an infix expression: ";
+    cin >> infix;
+
+    string postfix = infixToPostfix(infix);
+
+    cout << "Postfix expression: " << postfix << endl;
+
+    return 0;
+}
